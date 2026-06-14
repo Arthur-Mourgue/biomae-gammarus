@@ -1,80 +1,104 @@
-# Biomae Gammarus Analysis
+# Analyse de Gammarus Biomae
 
-Automated *Gammarus* sorting from dual orthogonal camera views for water-quality bio-surveillance at [Biomae](https://www.biomae.fr/).
+<table width="100%">
+  <tr>
+    <td width="60%" valign="middle" style="padding-right: 15px;">
+      <b>Tri automatisé de Gammarus pour la biosurveillance de la qualité de l'eau chez <a href="https://www.biomae.fr/">Biomae</a></b>
+      <br><br>
+      L'entreprise Biomae utilise des gammares soit de petites crevettes d'eau douce pour évaluer le niveau de pollution de l'eau. Pour que ces tests fonctionnent il faut séparer les individus selon leur sexe ou s'ils sont en couple.
+      <br><br>
+    </td>
+    <td width="40%" align="center" valign="middle">
+      <img src="docs/pipeline.png" height="550">
+    </td>
+  </tr>
+</table>
 
-![Detection → crop → classify → deblur → pose → fusion → decision](docs/pipeline.png)
+## Le Problème
 
-## Problem
+<table width="100%">
+  <tr>
+    <td width="60%" valign="middle" style="padding-right: 15px;">
+      Aujourd hui le tri se fait à la main sous un microscope. C'est un travail long fatigant pour les yeux et sujet aux erreurs. Un humain ne peut trier qu'environ 1 000 spécimens par heure.<br><br>
+      L'automatisation est compliquée à cause des conditions d'observation car pour maintenir les gammares en vie et ne pas les stresser la lumière doit rester très faible. <br><br>
+      Les gammares bougent vite dans leurs tubes transparents ce qui crée beaucoup de flou de mouvement sur les vidéos.
+    </td>
+    <td width="40%" align="center" valign="middle">
+      <img src="docs/manual-sorting.png" height="250">
+    </td>
+  </tr>
+</table>
 
-- **Manual sorting** under a microscope: ~**1,000 specimens/h**, tedious, error-prone.
-- **Hard imaging conditions**: low light, motion blur, tiny subjects in clear tubes.
-- **Dual-view capture**: each specimen has two synchronized frames (`img_A_*` / `img_B_*`).
+## La Solution
 
-![Manual sorting — ~1,000 specimens per hour](docs/manual-sorting.png)
+<table width="100%">
+  <tr>
+    <td width="60%" valign="middle" style="padding-right: 15px;">
+      Notre pipeline automatisé gère ces conditions complexes et accélère considérablement le processus pour remplacer intégralement le tri manuel des opérateurs.
+    </td>
+    <td width="40%" align="center" valign="middle">
+      <img src="docs/automated-sorting-machine.png" height="200">
+    </td>
+  </tr>
+  <tr>
+    <td width="60%" valign="middle" style="padding-right: 15px;">
+      <b>1. Détection et Recadrage</b><br><br>
+      L'ordinateur commence par regarder l'image globale et repère le gammare. Il découpe ensuite cette petite zone pour enlever tout le décor inutile du tube. Cela permet au système de se concentrer uniquement sur le gammares.
+    </td>
+    <td width="40%" align="center" valign="middle">
+      <img src="docs/raw-vs-cropped.png" height="120">
+    </td>
+  </tr>
+  <tr>
+    <td width="60%" valign="middle" style="padding-right: 15px;">
+      <b>2. Le Défloutage</b><br><br>
+      Nous avons créé un outil capable de rendre les images floues plus nettes. 
+      Cependant nous avons remarqué que corriger toutes les images dégradait les résultats. Notre astuce est donc de ne déflouter que les images où l'ordinateur a un vrai doute.
+    </td>
+    <td width="40%" align="center" valign="middle">
+      <img src="docs/unblurr.png" height="150">
+    </td>
+  </tr>
+  <tr>
+    <td width="60%" valign="middle" style="padding-right: 15px;">
+      <b>3. Classification et Décision</b><br><br>
+      Une fois l'image propre le modèle analyse la forme de la crevette et la classe instantanément en quatre catégories mâle femelle couple ou indéterminé.<br><br>
+    </td>
+    <td width="40%" align="center" valign="middle">
+      <img src="docs/classification-classes.png" height="180">
+    </td>
+  </tr>
+</table>
 
-## Solution
+## Résultats
 
-Target pipeline (see diagram above):
+Notre système obtient de bon résultats avec une précision moyenne de 92 % avec le score F1. Il reconnaît parfaitement les couples et est très performant pour identifier les cas ambigus et les femelles. 
 
-1. **YOLOv11n** detection — 1024 px input, single-class mode.
-2. **512×512** pad/crop — IoU grouping (threshold 0.25) merges overlapping boxes into couple crops.
-3. **MobileNetV3-large** — four classes: `male`, `femelle`, `couple`, `indeterminee`.
-4. **Conditional NAFNet** deblurring — only on `indeterminee` crops *(explored, not in this repo)*.
-5. **Pose estimation + MLP fusion** across views A/B *(pose not shipped; MLP is legacy only)*.
-
-**What runs today:** steps 1–3, per view, independently — via [`GammarusPipeline`](src/biomae/pipeline.py).
-
-![Automated sorting machine — dual cameras, routing to sorted tanks](docs/automated-sorting-machine.png)
-
-![Raw frame 2592×1944 → padded 512×512 crop](docs/raw-vs-cropped.png)
-
-![Output classes: indeterminee, couple, femelle, male](docs/classification-classes.png)
-
-## Results
-
-MobileNetV3 v4 on held-out validation set:
-
-| Class | Precision | Recall | F1 |
+| Classe | Précision | Rappel | F1 Réussite globale |
 |-------|-----------|--------|-----|
 | couple | 1.00 | 1.00 | 1.00 |
 | femelle | 1.00 | 0.85 | 0.92 |
 | indeterminee | 0.92 | 0.92 | 0.92 |
 | male | 0.81 | 0.91 | 0.86 |
-| **Macro avg** | **0.93** | **0.92** | **0.92** |
 
-Inference entry point: `GammarusPipeline.process_dual_view()` in [`src/biomae/pipeline.py`](src/biomae/pipeline.py).
+## Technologies utilisées
 
-## Engineering insight — conditional deblurring
+* **Détection :** YOLOv11n 
+* **Classification :** MobileNetV3 
+* **Défloutage :** NAFNet
+* **Mesure :** DeepLabCut 
+* **Outils divers :** OpenCV Pillow PyTorch
 
-Motion blur under low light is common. Two strategies tested:
+## Installation et Exécution
 
-- **Global NAFNet** on every crop → macro F1 dropped from **~0.92** to **~0.80** (domain shift — smoothing artifacts the classifier never saw in training).
-- **Conditional NAFNet** triggered only when the classifier predicts `indeterminee` → macro F1 back to **0.92**.
-
-Treat `indeterminee` as a rejection class. Deblur the uncertain cases; leave clean crops untouched.
-
-## Tech stack
-
-- **YOLOv11n** — [Ultralytics](https://github.com/ultralytics/ultralytics)
-- **MobileNetV3-large** — PyTorch / torchvision
-- **NAFNet** — explored, not shipped
-- **DeepLabCut / YOLO-Pose** — explored, not shipped
-- **PyTorch MLP fusion** — legacy ([`src/biomae/fusion.py`](src/biomae/fusion.py))
-- OpenCV, Pillow, scikit-learn
-
-## Setup & run
-
-**Requirements:** Python 3.10+, CUDA GPU recommended.
+Installez les prérequis Python 3.10 et une carte graphique avec CUDA sont recommandés 
 
 ```bash
 pip install -e . && pip install -r requirements.txt
+
 ```
 
-Place weights in `checkpoints/` — see [`checkpoints/README.md`](checkpoints/README.md) (`yolov11n_best.pt`, `mobilenet_v3_v4.pth`, `model_meta.json`).
-
-```bash
-jupyter lab notebooks/04_inference_pipeline.ipynb
-```
+Lancez le programme en Python pour analyser une image
 
 ```python
 from biomae.pipeline import GammarusPipeline
@@ -83,31 +107,15 @@ from biomae.paths import checkpoint_path, data_path
 pipeline = GammarusPipeline(
     yolo_weights=checkpoint_path("yolov11n_best.pt"),
     clf_weights=checkpoint_path("mobilenet_v3_v4.pth"),
-    clf_meta=checkpoint_path("model_meta.json"),
+    clf_meta=checkpoint_path("model_meta.json")
 )
-results = pipeline.process_dual_view(
-    data_path("01_raw/mfi_dataset/val/images/img_A_00049.png"),
-    data_path("01_raw/mfi_dataset/val/images/img_B_00049.png"),
-)
+
+results = pipeline.process_image(data_path("dataset/images/image_00049.png"))
+
 ```
 
-**Training:** `notebooks/01_train_yolo.ipynb` → `02_train_mobilenet.ipynb` → `03_train_mlp_fusion.ipynb` (legacy).
+## Limites actuelles
 
-## Limitations
-
-- **No cross-view fusion** in current inference — views A and B are processed independently.
-- **NAFNet and pose estimation** are not implemented in this repository.
-- **Checkpoints and lab dataset** are not bundled — see [`data/README.md`](data/README.md).
-- **Couple class**: perfect val metrics, but very few val samples — high variance risk.
-- **Male** (precision 0.81) and **femelle** (recall 0.85) remain the harder classes.
-- **`configs/*.yaml`** are reference configs — not loaded by the Python pipeline yet.
-
-## Further reading
-
-- [Biomae laboratory presentation (YouTube)](https://youtu.be/pltMficnO6Y)
-
-## Credits
-
-Arthur Mourgue — INSA Lyon · [Biomae](https://www.biomae.fr/) — dataset & sponsor
-
-MIT — see [`LICENSE`](LICENSE).
+* Les mâles et les femelles se ressemblent beaucoup ce qui reste la partie la plus difficile pour la machine.
+* La classe couple a un score parfait de 100% mais ce chiffre est à prendre avec des pincettes car nous avions très peu d exemples de couples pour faire le test.
+* Il faut encore intégrer ce programme informatique directement dans la vraie machine de tri physique.
