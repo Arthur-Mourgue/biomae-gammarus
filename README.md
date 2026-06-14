@@ -1,11 +1,11 @@
-# Analyse de Gammarus Biomae
+# Biomae Gammarus Sorting
 
 <table width="100%">
   <tr>
     <td width="60%" valign="middle" style="padding-right: 15px;">
-      <b>Tri automatisé de Gammarus pour la biosurveillance de la qualité de l'eau chez <a href="https://www.biomae.fr/">Biomae</a></b>
+      <b>Automated Gammarus sorting for water quality biomonitoring at <a href="https://www.biomae.fr/">Biomae</a></b>
       <br><br>
-      L'entreprise Biomae utilise des gammares soit de petites crevettes d'eau douce pour évaluer le niveau de pollution de l'eau. Pour que ces tests fonctionnent il faut séparer les individus selon leur sexe ou s'ils sont en couple.
+      The company Biomae uses gammarus, which are small freshwater shrimp, to assess water pollution levels. For these tests to work, the individuals must be separated according to their sex or if they are in a couple.
       <br><br>
     </td>
     <td width="40%" align="center" valign="middle">
@@ -14,14 +14,14 @@
   </tr>
 </table>
 
-## Le Problème
+## The Problem
 
 <table width="100%">
   <tr>
     <td width="60%" valign="middle" style="padding-right: 15px;">
-      Aujourd hui le tri se fait à la main sous un microscope. C'est un travail long fatigant pour les yeux et sujet aux erreurs. Un humain ne peut trier qu'environ 1 000 spécimens par heure.<br><br>
-      L'automatisation est compliquée à cause des conditions d'observation car pour maintenir les gammares en vie et ne pas les stresser la lumière doit rester très faible. <br><br>
-      Les gammares bougent vite dans leurs tubes transparents ce qui crée beaucoup de flou de mouvement sur les vidéos.
+      Today, sorting is done by hand under a microscope. It is a long, eye-straining task that is prone to errors. A human can only sort about 1,000 specimens per hour.<br><br>
+      Automation is complicated because of the observation conditions: to keep the gammarus alive and avoid stressing them, the lighting must remain very low. <br><br>
+      The gammarus move quickly inside their transparent tubes, which creates a lot of motion blur in the videos.
     </td>
     <td width="40%" align="center" valign="middle">
       <img src="docs/manual-sorting.png" height="250">
@@ -29,12 +29,12 @@
   </tr>
 </table>
 
-## La Solution
+## The Solution
 
 <table width="100%">
   <tr>
     <td width="60%" valign="middle" style="padding-right: 15px;">
-      Notre pipeline automatisé gère ces conditions complexes et accélère considérablement le processus pour remplacer intégralement le tri manuel des opérateurs.
+      Our automated pipeline handles these complex conditions and significantly speeds up the process to completely replace manual sorting by operators.
     </td>
     <td width="40%" align="center" valign="middle">
       <img src="docs/automated-sorting-machine.png" height="200">
@@ -42,8 +42,8 @@
   </tr>
   <tr>
     <td width="60%" valign="middle" style="padding-right: 15px;">
-      <b>1. Détection et Recadrage</b><br><br>
-      L'ordinateur commence par regarder l'image globale et repère le gammare. Il découpe ensuite cette petite zone pour enlever tout le décor inutile du tube. Cela permet au système de se concentrer uniquement sur le gammares.
+      <b>1. Detection and Cropping</b><br><br>
+      The computer starts by looking at the overall image and locates the gammarus. It then crops this small area to remove all the unnecessary background of the tube. This allows the system to focus solely on the gammarus.
     </td>
     <td width="40%" align="center" valign="middle">
       <img src="docs/raw-vs-cropped.png" height="120">
@@ -51,9 +51,9 @@
   </tr>
   <tr>
     <td width="60%" valign="middle" style="padding-right: 15px;">
-      <b>2. Le Défloutage</b><br><br>
-      Nous avons créé un outil capable de rendre les images floues plus nettes. 
-      Cependant nous avons remarqué que corriger toutes les images dégradait les résultats. Notre astuce est donc de ne déflouter que les images où l'ordinateur a un vrai doute.
+      <b>2. Deblurring</b><br><br>
+      We created a tool capable of making blurry images sharper. 
+      However, we noticed that correcting all the images degraded the results. Our trick is therefore to only deblur the images where the computer has a genuine doubt.
     </td>
     <td width="40%" align="center" valign="middle">
       <img src="docs/unblurr.png" height="150">
@@ -61,8 +61,8 @@
   </tr>
   <tr>
     <td width="60%" valign="middle" style="padding-right: 15px;">
-      <b>3. Classification et Décision</b><br><br>
-      Une fois l'image propre le modèle analyse la forme de la crevette et la classe instantanément en quatre catégories mâle femelle couple ou indéterminé.<br><br>
+      <b>3. Classification and Decision</b><br><br>
+      Once the image is clean, the model analyzes the shape of the shrimp and instantly classifies it into four categories: male, female, couple, or undetermined.<br><br>
     </td>
     <td width="40%" align="center" valign="middle">
       <img src="docs/classification-classes.png" height="180">
@@ -70,35 +70,35 @@
   </tr>
 </table>
 
-## Résultats
+## Results
 
-Notre système obtient de bon résultats avec une précision moyenne de 92 % avec le score F1. Il reconnaît parfaitement les couples et est très performant pour identifier les cas ambigus et les femelles. 
+Our system achieves good results with an average precision of 92% using the F1 score. It perfectly recognizes couples and performs very well at identifying ambiguous cases and females. 
 
-| Classe | Précision | Rappel | F1 Réussite globale |
+| Class | Precision | Recall | F1 Overall Success |
 |-------|-----------|--------|-----|
 | couple | 1.00 | 1.00 | 1.00 |
-| femelle | 1.00 | 0.85 | 0.92 |
-| indeterminee | 0.92 | 0.92 | 0.92 |
+| female | 1.00 | 0.85 | 0.92 |
+| undetermined | 0.92 | 0.92 | 0.92 |
 | male | 0.81 | 0.91 | 0.86 |
 
-## Technologies utilisées
+## Technologies Used
 
-* **Détection :** YOLOv11n 
-* **Classification :** MobileNetV3 
-* **Défloutage :** NAFNet
-* **Mesure :** DeepLabCut 
-* **Outils divers :** OpenCV Pillow PyTorch
+* **Detection:** YOLOv11n 
+* **Classification:** MobileNetV3 
+* **Deblurring:** NAFNet
+* **Measurement:** DeepLabCut 
+* **Various Tools:** OpenCV, Pillow, PyTorch
 
-## Installation et Exécution
+## Installation and Execution
 
-Installez les prérequis Python 3.10 et une carte graphique avec CUDA sont recommandés 
+Install the prerequisites. Python 3.10 and a graphics card with CUDA are recommended. 
 
 ```bash
 pip install -e . && pip install -r requirements.txt
 
 ```
 
-Lancez le programme en Python pour analyser une image
+Run the Python program to analyze an image:
 
 ```python
 from biomae.pipeline import GammarusPipeline
@@ -114,8 +114,8 @@ results = pipeline.process_image(data_path("dataset/images/image_00049.png"))
 
 ```
 
-## Limites actuelles
+## Current Limitations
 
-* Les mâles et les femelles se ressemblent beaucoup ce qui reste la partie la plus difficile pour la machine.
-* La classe couple a un score parfait de 100% mais ce chiffre est à prendre avec des pincettes car nous avions très peu d exemples de couples pour faire le test.
-* Il faut encore intégrer ce programme informatique directement dans la vraie machine de tri physique.
+* Males and females look very similar, which remains the most difficult part for the machine.
+* The couple class has a perfect score of 100%, but this figure should be taken with a grain of salt as we had very few examples of couples to run the test.
+* This computer program still needs to be integrated directly into the actual physical sorting machine.
