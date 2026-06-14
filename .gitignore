@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Checkpoints and model weights (place locally — see checkpoints/README.md)
+checkpoints/*
+!checkpoints/README.md
+!checkpoints/model_meta.json
+
+# Data (lab dataset — not distributed)
+data/**
+!data/README.md
+
+# Training outputs
+outputs/
+runs/
+travail/
+embeddings_data/
+
+# OS
+.DS_Store
+Thumbs.db

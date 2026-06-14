@@ -1,0 +1,38 @@
+# YOLOv11n detection configuration
+# Paths are relative to the project root (BIOMAE_ROOT).
+
+model: yolo11n.pt
+task: detect
+
+data:
+  path: data/01_raw/mfi_dataset
+  train: train/images
+  val: val/images
+  nc: 3
+  names:
+    0: male
+    1: femelle
+    2: indeterminee
+
+training:
+  epochs: 100
+  imgsz: 1024
+  batch: 2
+  single_cls: true
+  device: "0"
+
+inference:
+  imgsz: 1024
+  conf: 0.25
+  iou: 0.60
+
+checkpoints:
+  # Place trained weights here (gitignored). See checkpoints/README.md.
+  best: checkpoints/yolov11n_best.pt
+
+cropping:
+  canvas_size: 512
+  conf_filter: 0.25
+  group_mode: iou
+  group_iou_thr: 0.25
+  downscale_only: true

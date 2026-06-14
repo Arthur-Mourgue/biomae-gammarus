@@ -1,0 +1,46 @@
+{
+    "model_architecture": "mobilenet_v3_large",
+    "description": "Classification Gammare (Male, Femelle, Couple, Indeterminee)",
+    "input_config": {
+        "input_shape": [
+            1,
+            512,
+            512,
+            3
+        ],
+        "data_format": "channels_last",
+        "preprocessing": {
+            "mean": [
+                0.485,
+                0.456,
+                0.406
+            ],
+            "std": [
+                0.229,
+                0.224,
+                0.225
+            ],
+            "note": "Input should be normalized: (pixel/255.0 - mean) / std"
+        }
+    },
+    "labels_map": {
+        "indices": {
+            "0": "couple",
+            "1": "femelle",
+            "2": "indeterminee",
+            "3": "male"
+        },
+        "names": [
+            "couple",
+            "femelle",
+            "indeterminee",
+            "male"
+        ]
+    },
+    "thresholds_used_in_training_val": {
+        "female": 0.4,
+        "indet": 0.5,
+        "couple": 0.5
+    },
+    "generated_at": "2026-01-09 17:17:21"
+}
